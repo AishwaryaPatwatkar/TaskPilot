@@ -18,23 +18,23 @@ interface Props {
 }
 
 const STATUS_FILTERS: Array<{ value: TaskStatus | "all"; label: string }> = [
-  { value: "all",       label: "All" },
-  { value: "pending",   label: "Pending" },
-  { value: "running",   label: "Running" },
+  { value: "all", label: "All" },
+  { value: "pending", label: "Pending" },
+  { value: "running", label: "Running" },
   { value: "succeeded", label: "Succeeded" },
-  { value: "failed",    label: "Failed" },
-  { value: "dead",      label: "Dead" },
+  { value: "failed", label: "Failed" },
+  { value: "dead", label: "Dead" },
 ];
 
 const PAGE_SIZES = [10, 20, 50];
 
 function StatusBadge({ status }: { status: TaskStatus }) {
   const labels: Record<TaskStatus, string> = {
-    pending:   "Pending",
-    running:   "Running",
+    pending: "Pending",
+    running: "Running",
     succeeded: "Succeeded",
-    failed:    "Failed",
-    dead:      "Dead",
+    failed: "Failed",
+    dead: "Dead",
   };
   return (
     <span
@@ -258,12 +258,38 @@ export default function TaskTable({
                       >
                         {task.title}
                       </div>
+                      {/* Payload Parameters */}
+                      {task.payload && typeof task.payload === "object" && Object.keys(task.payload).length > 0 && (
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4, marginTop: 4, maxWidth: 220 }}>
+                          {Object.entries(task.payload).map(([k, v]) => (
+                            <span
+                              key={k}
+                              title={`${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`}
+                              style={{
+                                fontSize: 10,
+                                background: "var(--bg-secondary)",
+                                border: "1px solid var(--border-subtle)",
+                                padding: "2px 6px",
+                                borderRadius: 4,
+                                color: "var(--text-secondary)",
+                                fontFamily: "monospace",
+                                whiteSpace: "nowrap",
+                                overflow: "hidden",
+                                textOverflow: "ellipsis",
+                                maxWidth: 120,
+                              }}
+                            >
+                              {k}: {typeof v === "object" ? JSON.stringify(v) : String(v)}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                       {task.last_error && (
                         <div
                           style={{
                             fontSize: 11,
                             color: "#fb7185",
-                            marginTop: 2,
+                            marginTop: 4,
                             maxWidth: 200,
                             overflow: "hidden",
                             textOverflow: "ellipsis",
