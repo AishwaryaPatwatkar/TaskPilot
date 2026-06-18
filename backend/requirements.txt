@@ -1,0 +1,27 @@
+# Core framework
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# Database (async)
+sqlalchemy==2.0.36
+asyncpg==0.30.0
+
+# Database (sync — Alembic migrations only)
+psycopg2-binary==2.9.10
+alembic==1.14.0
+
+# Validation / settings
+pydantic==2.10.3
+pydantic-settings==2.6.1
+
+# Auth
+python-multipart==0.0.20  # required for HTTPBasic in FastAPI
+
+# Testing
+pytest==8.3.4
+pytest-asyncio==0.24.0
+httpx==0.28.1
+anyio==4.7.0
+
+# Linting (dev)
+ruff==0.8.4
