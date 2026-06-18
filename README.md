@@ -19,28 +19,50 @@ cp .env.example .env
 docker compose up --build
 ```
 
-The API is available at **http://localhost:8000**  
-Interactive docs: **http://localhost:8000/docs**  
-Health check: **http://localhost:8000/health**
+The API is available at **http://localhost:8001**  
+Interactive docs: **http://localhost:8001/docs**  
+Health check: **http://localhost:8001/health**  
+Database: `localhost:5433` (host port, avoids conflict with local Postgres)
 
 **Default credentials:** `admin` / `changeme` (HTTP Basic Auth)
 
 ### Quick smoke test
 
 ```bash
+# Health check (no auth required)
+curl http://localhost:8001/health
+
 # Create a task
-curl -u admin:changeme -X POST http://localhost:8000/tasks \
+curl -u admin:changeme -X POST http://localhost:8001/tasks \
   -H "Content-Type: application/json" \
   -d '{"title": "Send receipt", "payload": {"order_id": 123}}'
 
 # List tasks
-curl -u admin:changeme http://localhost:8000/tasks
+curl -u admin:changeme http://localhost:8001/tasks
 
-# Create a task that will fail and be retried
-curl -u admin:changeme -X POST http://localhost:8000/tasks \
+# Create a task that will fail and be retried (tests retry + dead-letter path)
+curl -u admin:changeme -X POST http://localhost:8001/tasks \
   -H "Content-Type: application/json" \
   -d '{"title": "Failing job", "payload": {"force_fail": true}}'
+
+# Manually retry a failed task (replace <id> with actual UUID)
+curl -u admin:changeme -X PATCH http://localhost:8001/tasks/<id>/status \
+  -H "Content-Type: application/json" \
+  -d '{"status": "pending"}'
 ```
+
+### Part 4 — Next.js Frontend (bonus)
+
+```bash
+# In a separate terminal (while docker compose is running):
+cd frontend
+npm install        # first time only
+npm run dev
+```
+
+The dashboard is available at **http://localhost:3001**  
+On first visit, a config dialog appears — defaults (`http://localhost:8001` / `admin` / `changeme`) work out of the box.  
+Features: task list with status badges, create task form with JSON payload editor, auto-refresh every 5s, manual retry of failed tasks, pagination, status filter.
 
 ---
 
