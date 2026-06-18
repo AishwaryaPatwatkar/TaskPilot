@@ -7,8 +7,13 @@ the test session so the schema matches exactly what production uses.
 """
 
 import os
+import sys
+import asyncio
 import subprocess
 from collections.abc import AsyncGenerator
+
+if sys.platform == "win32":
+    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 import pytest
 import pytest_asyncio
@@ -32,8 +37,9 @@ TEST_DB_URL_SYNC = os.getenv(
 )
 
 # ── Engine + session factory for tests ───────────────────────────────────────
+from sqlalchemy.pool import NullPool
 
-test_engine = create_async_engine(TEST_DB_URL_ASYNC, pool_pre_ping=True)
+test_engine = create_async_engine(TEST_DB_URL_ASYNC, poolclass=NullPool)
 TestSessionLocal = async_sessionmaker(
     test_engine, class_=AsyncSession, expire_on_commit=False
 )
@@ -61,7 +67,7 @@ def run_migrations():
         async with test_engine.begin() as conn:
             await conn.run_sync(Base.metadata.drop_all)
 
-    asyncio.get_event_loop().run_until_complete(drop())
+    asyncio.run(drop())
 
 
 # ── Per-test DB cleanup ───────────────────────────────────────────────────────

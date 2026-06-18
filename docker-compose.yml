@@ -34,6 +34,7 @@ services:
       WORKER_POLL_INTERVAL: ${WORKER_POLL_INTERVAL:-60}
       MAX_RETRIES: ${MAX_RETRIES:-3}
       LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:3000,http://localhost:3001,http://localhost:3002}
 
 volumes:
   postgres_data:

@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import logging.config
+import os
 
 from fastapi import FastAPI, Request, status
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from app.middleware import RequestLoggingMiddleware
@@ -25,6 +27,22 @@ app = FastAPI(
     version="1.0.0",
 )
 
+# CORS — allow the Next.js frontend (and Swagger UI) to reach the API from
+# the browser.  Origins are configurable via CORS_ORIGINS env var so that
+# production can lock this down to a real domain.
+_cors_origins_raw = os.getenv(
+    "CORS_ORIGINS",
+    "http://localhost:3000,http://localhost:3001,http://localhost:3002",
+)
+ALLOWED_ORIGINS = [o.strip() for o in _cors_origins_raw.split(",") if o.strip()]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(health_router)
