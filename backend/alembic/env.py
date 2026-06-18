@@ -34,13 +34,13 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    # Override URL from environment variable if set (docker compose injects it)
+    # Resolve the DB URL from env first, then override the config object so
+    # configparser never attempts to interpolate the placeholder in alembic.ini.
     db_url = os.getenv("DATABASE_URL_SYNC") or config.get_main_option("sqlalchemy.url")
-    configuration = config.get_section(config.config_ini_section, {})
-    configuration["sqlalchemy.url"] = db_url
+    config.set_main_option("sqlalchemy.url", db_url)
 
     connectable = engine_from_config(
-        configuration,
+        config.get_section(config.config_ini_section, {}),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
